@@ -50,19 +50,12 @@ def handle_update(update):
             if not items:
                 send_message("*🐨There are no goals at the moment. Start with typing anything below!*", chat)
             else:
-                items = db.get_items(chat)
-                keyboard = build_keyboard(items)
-
-                send_message(
-                    "*🔥Congrats on completing the goal! Select an item to delete from the keyboard:*",
-                    chat, build_keyboard(db.get_items(chat)))
                 message = ""
                 items = db.get_items(chat)
                 keyboard = build_keyboard(items)
                 send_message(
-                    "*🔥Congrats on completing the goal! Select an item to delete from the dropdown keyboard:*" + message,
+                    "*🔥Congrats on completing the goal! Select an item to delete from the inline keyboard:*" + message,
                     chat, keyboard)
-                keyboard = build_keyboard(items)
         elif text in items:  # if user already sent this goal
             db.delete_item(text, chat)
             items = db.get_items(chat)
