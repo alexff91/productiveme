@@ -28,7 +28,7 @@ class Databasesetup:
         self.conn.commit()
 
     def delete_all(self, item_text, owner):
-        stmt = "UPDATE items SET deleted = 1 WHERE owner = (?)"
+        stmt = "DELETE FROM items WHERE owner = (?) and deleted = 0"
         args = (owner, )
         self.conn.execute(stmt, args)
         self.conn.commit()
