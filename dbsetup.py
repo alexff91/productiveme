@@ -51,3 +51,8 @@ class Databasesetup:
         stmt = "SELECT description FROM items WHERE owner = (?) and deleted = 0"
         args = (owner, )
         return [x[0] for x in self.conn.execute(stmt, args)]
+
+    def get_completed_items(self, owner):
+        stmt = "SELECT description FROM items WHERE owner = (?) and deleted = 1 and date >= (?)"
+        args = (owner, datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0))
+        return [x[0] for x in self.conn.execute(stmt, args)]

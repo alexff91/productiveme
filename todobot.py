@@ -70,7 +70,9 @@ def handle_update(update):
             if not items:
                 send_message("*✅Another goal done!\nThere are no current goals at the moment. Well done🔥!*", chat)
             else:
-                message = "\n"
+                completedItems = db.get_completed_items(chat)
+                completedItems = ["☑" + sub for sub in completedItems]
+                message = "\n️".join(completedItems)
                 keyboard = build_keyboard(items)
                 send_message("*✅Another goal done! Current goals for today: \n*" + message, chat, keyboard)
 
@@ -83,7 +85,9 @@ def handle_update(update):
             db.add_item(text, chat)
             items = db.get_items(chat)
             keyboard = build_keyboard(items)
-            message = "\n"
+            completedItems = db.get_completed_items(chat)
+            completedItems = ["☑" + sub for sub in completedItems]
+            message = "\n".join(completedItems)
             send_message("*✍New goal added. Main Goals for today: \n*" + message, chat, keyboard)
 
 
@@ -94,16 +98,20 @@ def handle_update(update):
                          "\n\nUse /currentgoals to list your goals"
                          " To clear your list, send /clear. \n\nThank you! Message @alexff91 if you have any questions.*",
                          chat, keyboard)
-            message = "\n"
+            completedItems = db.get_completed_items(chat)
+            completedItems = ["☑" + sub for sub in completedItems]
+            message = "\n".join(completedItems)
             send_message("*🎯Current goals: \n*" + message, chat)
 
         elif text == "/currentgoals":
             keyboard = build_keyboard(items)
-            message = "\n"
+            completedItems = db.get_completed_items(chat)
+            completedItems = ["☑" + sub for sub in completedItems]
+            message = "\n".join(completedItems)
             if len(items) > 0:
                 send_message("*🎯Current goals: \n*" + message, chat, keyboard)
             else:
-                send_message("*🎯All goals are complete for today! \n*", chat, keyboard)
+                send_message("*🎯All goals are complete for today! \n*" + message, chat, keyboard)
 
         elif text == "/help":
             send_message("*🗒️Welcome to your personal todo list! \n\nTo add the goal, just type it below⬇️ "
@@ -116,7 +124,9 @@ def handle_update(update):
             db.delete_all(text, chat)
             items = db.get_items(chat)
             keyboard = build_keyboard(items)
-            message = "\n"
+            completedItems = db.get_completed_items(chat)
+            completedItems = ["☑" + sub for sub in completedItems]
+            message = "\n".join(completedItems)
             send_message("*✅✅✅Well done!\nNow there are no goals at the moment*" + message, chat)
 
         # elif text.startswith("/"):
@@ -161,7 +171,9 @@ def auto_send_end():
     for user in users:
         items = db.get_items(user)
         keyboard = build_keyboard(items)
-        send_message("*Time to check your goals: \n*" , user, keyboard)
+        completedItems = db.get_completed_items(user)
+        message = "\n".join(completedItems)
+        send_message("*Time to check your goals: \n*" + message, user, keyboard)
     return 0
 
 def main():
