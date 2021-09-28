@@ -39,11 +39,17 @@ def get_last_update_id(updates):
 
 def handle_update(update):
     if "message" in update:
-        text = update["message"]["text"]
-        chat = update["message"]["chat"]["id"]
+        if "text" in update["message"]:
+            text = update["message"]["text"]
+            chat = update["message"]["chat"]["id"]
+        else:
+            chat = None
     elif "callback_query" in update:
-        text = update["callback_query"]["data"]
-        chat = update["callback_query"]["message"]["chat"]["id"]
+        if "data" in update["callback_query"]:
+            text = update["callback_query"]["data"]
+            chat = update["callback_query"]["message"]["chat"]["id"]
+        else:
+            chat = None
     if chat is not None:
         items = db.get_items(chat)
         if text == "/done":
@@ -56,7 +62,7 @@ def handle_update(update):
                 send_message(
                     "*🔥Congrats on completing the goal! Select an item to delete from the inline keyboard:*" + message,
                     chat, keyboard)
-        elif text in items:  # if user already sent this goal
+        elif any(text in s for s in items):  # if user already sent this goal
             db.delete_item(text, chat)
             items = db.get_items(chat)
 
@@ -69,7 +75,7 @@ def handle_update(update):
                 keyboard = build_keyboard(items)
                 send_message("*✅Another goal done!  Completed goals today: \n*" + message + "\nMain Goals for today:", chat, keyboard)
 
-        elif (text not in items) and (not text.startswith("/") and (text != "~")):  # if user didn't send it
+        elif any(text not in s for s in items) and (not text.startswith("/") and (text != "~")):  # if user didn't send it
             if len(db.get_items(chat)) >= 3:
                 items = db.get_items(chat)
                 keyboard = build_keyboard(items)
@@ -140,7 +146,7 @@ def get_last_chat_id_and_text(updates: {}):  # only last message instead of whol
 
 
 def build_keyboard(items):
-    keyboard = [[{"text": item, "callback_data": item}] for item in items]
+    keyboard = [[{"text": item, "callback_data": item[:35]}] for item in items]
     reply_markup = {"inline_keyboard": keyboard}
     return json.dumps(reply_markup)
 

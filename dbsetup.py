@@ -1,5 +1,6 @@
-import sqlite3
 import datetime
+import sqlite3
+
 
 class Databasesetup:
     def __init__(self, dbname="todo.sqlite"):
@@ -22,17 +23,17 @@ class Databasesetup:
         self.conn.commit()
 
     def delete_item(self, item_text, owner):
-        stmt = "UPDATE items SET deleted = 1 WHERE description = (?) AND owner = (?)"
-        args = (item_text, owner )
+        stmt = "UPDATE items SET deleted = 1 WHERE description LIKE (?) AND owner = (?)"
+        args = ("%" + item_text + "%", owner)
         self.conn.execute(stmt, args)
         self.conn.commit()
 
     def delete_all(self, item_text, owner):
         stmt = "DELETE FROM items WHERE owner = (?) and deleted = 0"
-        args = (owner, )
+        args = (owner,)
         self.conn.execute(stmt, args)
         self.conn.commit()
-    
+
     def get_users(self):
         cur = self.conn.cursor()
         stmt = "SELECT distinct owner FROM items"
@@ -41,15 +42,14 @@ class Databasesetup:
     def get_num_messages(self, item_text, owner):
         cur = self.conn.cursor()
         stmt = "SELECT count(DISTINCT description) AS alias FROM items"
-        args = (owner, )
+        args = (owner,)
         cur.execute(stmt, ())
         num = cur.fetchone()
         return num
 
-        
     def get_items(self, owner):
         stmt = "SELECT description FROM items WHERE owner = (?) and deleted = 0"
-        args = (owner, )
+        args = (owner,)
         return [x[0] for x in self.conn.execute(stmt, args)]
 
     def get_completed_items(self, owner):
