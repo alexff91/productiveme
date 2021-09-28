@@ -14,9 +14,6 @@ TOKEN = token
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 NAME = "productiveme_bot"
 
-users = []
-goals = []
-
 
 def get_json_from_url(url):  # gets JSON from Telegram API url
     content = requests.get(url).content.decode("utf8")
@@ -47,94 +44,83 @@ def handle_update(update):
     elif "callback_query" in update:
         text = update["callback_query"]["data"]
         chat = update["callback_query"]["message"]["chat"]["id"]
-
-    if chat not in users:
-        users.append(chat)
-
-    items = db.get_items(chat)
-    if text == "/done":
-        if not items:
-            send_message("*🐨There are no goals at the moment. Start with typing anything below!*", chat)
-        else:
-            items = db.get_items(chat)
-            keyboard = build_keyboard(items)
-
-            send_message(
-                "*🔥Congrats on completing the goal! Select an item to delete from the keyboard:*",
-                chat, build_keyboard(db.get_items(chat)))
-            message = ""
-            items = db.get_items(chat)
-            keyboard = build_keyboard(items)
-            send_message(
-                "*🔥Congrats on completing the goal! Select an item to delete from the dropdown keyboard:*" + message,
-                chat, keyboard)
-            keyboard = build_keyboard(items)
-    elif text in items:  # if user already sent this goal
-        goals.append(text)
-
-        db.delete_item(text, chat)
+    if chat is not None:
         items = db.get_items(chat)
+        if text == "/done":
+            if not items:
+                send_message("*🐨There are no goals at the moment. Start with typing anything below!*", chat)
+            else:
+                items = db.get_items(chat)
+                keyboard = build_keyboard(items)
 
-        if not items:
-            send_message("*✅Another goal done!\nThere are no current goals at the moment. Well done🔥!*", chat)
-        else:   
+                send_message(
+                    "*🔥Congrats on completing the goal! Select an item to delete from the keyboard:*",
+                    chat, build_keyboard(db.get_items(chat)))
+                message = ""
+                items = db.get_items(chat)
+                keyboard = build_keyboard(items)
+                send_message(
+                    "*🔥Congrats on completing the goal! Select an item to delete from the dropdown keyboard:*" + message,
+                    chat, keyboard)
+                keyboard = build_keyboard(items)
+        elif text in items:  # if user already sent this goal
+            db.delete_item(text, chat)
+            items = db.get_items(chat)
+
+            if not items:
+                send_message("*✅Another goal done!\nThere are no current goals at the moment. Well done🔥!*", chat)
+            else:
+                message = "\n"
+                keyboard = build_keyboard(items)
+                send_message("*✅Another goal done! Current goals for today: \n*" + message, chat, keyboard)
+
+        elif (text not in items) and (not text.startswith("/") and (text != "~")):  # if user didn't send it
+            if len(db.get_items(chat)) >= 3:
+                items = db.get_items(chat)
+                keyboard = build_keyboard(items)
+                send_message("*There could be only Three Main Goals for today! \n*", chat, keyboard)
+                return
+            db.add_item(text, chat)
+            items = db.get_items(chat)
+            keyboard = build_keyboard(items)
             message = "\n"
-            keyboard = build_keyboard(items)
-            send_message("*✅Another goal done! Current goals for today: \n*" + message, chat, keyboard)
+            send_message("*✍New goal added. Main Goals for today: \n*" + message, chat, keyboard)
 
-    elif (text not in items) and (not text.startswith("/") and (text != "~")):  # if user didn't send it
-        if len(db.get_items(chat)) >= 3:
+
+        elif text == "/start":
+            keyboard = build_keyboard(items)
+            send_message("*🗒️Welcome to your personal Three Main Goals! \n\nTo add the goal, just type it below⬇️ "
+                         "\n\nDelete your goal using inline menu or just type /done to remove it."
+                         "\n\nUse /currentgoals to list your goals"
+                         " To clear your list, send /clear. \n\nThank you! Message @alexff91 if you have any questions.*",
+                         chat, keyboard)
+            message = "\n"
+            send_message("*🎯Current goals: \n*" + message, chat)
+
+        elif text == "/currentgoals":
+            keyboard = build_keyboard(items)
+            message = "\n"
+            if len(items) > 0:
+                send_message("*🎯Current goals: \n*" + message, chat, keyboard)
+            else:
+                send_message("*🎯All goals are complete for today! \n*", chat, keyboard)
+
+        elif text == "/help":
+            send_message("*🗒️Welcome to your personal todo list! \n\nTo add the goal, just type it below⬇️ "
+                         "\n\nDelete your goal using inline menu or just type /done to remove it."
+                         "\n\nUse /currentgoals to list your goals"
+                         " To clear your list, send /clear. \n\nThank you! Message @alexff91 if you have any questions.*",
+                         chat)
+
+        elif text == "/clear":
+            db.delete_all(text, chat)
             items = db.get_items(chat)
             keyboard = build_keyboard(items)
-            send_message("*There could be only Three Main Goals for today! \n*", chat, keyboard)
-            return
-        db.add_item(text, chat)
-        items = db.get_items(chat)
-        keyboard = build_keyboard(items)
-        message = "\n"
-        send_message("*✍New goal added. Main Goals for today: \n*" + message, chat, keyboard)
+            message = "\n"
+            send_message("*✅✅✅Well done!\nNow there are no goals at the moment*" + message, chat)
 
-    elif text == "/getnumusers":
-        send_message("*Number of users: *" + str(len(users)), chat)
-
-    elif text == "/getnummessages":
-        send_message("*Number of goals done: *" + str(len(goals)), chat)
-
-
-    elif text == "/start":
-        keyboard = build_keyboard(items)
-        send_message("*🗒️Welcome to your personal Three Main Goals! \n\nTo add the goal, just type it below⬇️ "
-                     "\n\nDelete your goal using inline menu or just type /done to remove it."
-                     "\n\nUse /currentgoals to list your goals"
-                     " To clear your list, send /clear. \n\nThank you! Message @alexff91 if you have any questions.*",
-                     chat, keyboard)
-        message = "\n"
-        send_message("*🎯Current goals: \n*" + message, chat)
-
-    elif text == "/currentgoals":
-        keyboard = build_keyboard(items)
-        message = "\n"
-        if len(items) > 0:
-            send_message("*🎯Current goals: \n*" + message, chat, keyboard)
-        else:
-            send_message("*🎯All goals are complete for today! \n*", chat, keyboard)
-
-    elif text == "/help":
-        send_message("*🗒️Welcome to your personal todo list! \n\nTo add the goal, just type it below⬇️ "
-                     "\n\nDelete your goal using inline menu or just type /done to remove it."
-                     "\n\nUse /currentgoals to list your goals"
-                     " To clear your list, send /clear. \n\nThank you! Message @alexff91 if you have any questions.*",
-                     chat)
-
-    elif text == "/clear":
-        db.delete_all(text, chat)
-        items = db.get_items(chat)
-        keyboard = build_keyboard(items)
-        message = "\n"
-        send_message("*✅✅✅Well done!\nNow there are no goals at the moment*" + message, chat)
-
-    # elif text.startswith("/"):
-    # continue
+        # elif text.startswith("/"):
+        # continue
 
 
 def handle_updates(updates):
