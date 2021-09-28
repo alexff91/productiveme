@@ -75,7 +75,7 @@ def handle_update(update):
                 keyboard = build_keyboard(items)
                 send_message("*✅Another goal done!  Completed goals today: \n*" + message + "\nMain Goals for today:", chat, keyboard)
 
-        elif any(text not in s for s in items) and (not text.startswith("/") and (text != "~")):  # if user didn't send it
+        elif not any(text in s for s in items) and (not text.startswith("/") and (text != "~")):  # if user didn't send it
             if len(db.get_items(chat)) >= 3:
                 items = db.get_items(chat)
                 keyboard = build_keyboard(items)
