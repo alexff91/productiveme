@@ -67,13 +67,13 @@ def handle_update(update):
                 completedItems = ["☑" + sub for sub in completedItems]
                 message = "\n️".join(completedItems)
                 keyboard = build_keyboard(items)
-                send_message("*✅Another goal done!  Completed goals today: \n*" + message + "Main Goals for today:", chat, keyboard)
+                send_message("*✅Another goal done!  Completed goals today: \n*" + message + "\nMain Goals for today:", chat, keyboard)
 
         elif (text not in items) and (not text.startswith("/") and (text != "~")):  # if user didn't send it
             if len(db.get_items(chat)) >= 3:
                 items = db.get_items(chat)
                 keyboard = build_keyboard(items)
-                send_message("*There could be only Three Main Goals for today! \n*", chat, keyboard)
+                send_message("*There could be only Three \nMain Goals for today! \n*", chat, keyboard)
                 return
             db.add_item(text, chat)
             items = db.get_items(chat)
@@ -81,7 +81,7 @@ def handle_update(update):
             completedItems = db.get_completed_items(chat)
             completedItems = ["☑" + sub for sub in completedItems]
             message = "\n".join(completedItems)
-            send_message("*✍New goal added. Completed goals today: \n*" + message + "Main Goals for today:", chat, keyboard)
+            send_message("*✍New goal added. Completed goals today: \n*" + message + "\nMain Goals for today:", chat, keyboard)
 
 
         elif text == "/start":
@@ -94,7 +94,7 @@ def handle_update(update):
             completedItems = db.get_completed_items(chat)
             completedItems = ["☑" + sub for sub in completedItems]
             message = "\n".join(completedItems)
-            send_message("*🎯Completed goals today: \n*" + message + "Main Goals for today:", chat)
+            send_message("*🎯Completed goals today: \n*" + message + "\nMain Goals for today:", chat)
 
         elif text == "/currentgoals":
             keyboard = build_keyboard(items)
@@ -102,7 +102,7 @@ def handle_update(update):
             completedItems = ["☑" + sub for sub in completedItems]
             message = "\n".join(completedItems)
             if len(items) > 0:
-                send_message("*🎯 Completed goals today: \n*" + message + "Main Goals for today:", chat, keyboard)
+                send_message("*🎯 Completed goals today: \n*" + message + "\nMain Goals for today:", chat, keyboard)
             else:
                 send_message("*🎯All goals are complete for today! \n*" + message, chat, keyboard)
 
@@ -166,7 +166,7 @@ def auto_send_end():
         keyboard = build_keyboard(items)
         completedItems = db.get_completed_items(user)
         message = "\n".join(completedItems)
-        send_message("*Time to check your goals.  Completed goals today: \n*" + message + "Main Goals for today:", user, keyboard)
+        send_message("*Time to check your goals.  Completed goals today: \n*" + message + "\nMain Goals for today:", user, keyboard)
     return 0
 
 def main():
