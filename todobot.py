@@ -127,7 +127,7 @@ def handle_update(update):
             completedItems = db.get_completed_items(chat)
             completedItems = ["☑" + sub for sub in completedItems]
             message = "\n".join(completedItems)
-            send_message("*✅✅✅Well done!\nNow there are no goals at the moment*" + message, chat)
+            send_message("*✅✅✅Well done!\nNow there are no goals at the moment*\n" + message, chat)
 
         # elif text.startswith("/"):
         # continue
