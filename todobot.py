@@ -38,6 +38,8 @@ def get_last_update_id(updates):
 
 
 def handle_update(update):
+    chat = None
+    text = None
     if "message" in update:
         if "text" in update["message"]:
             text = update["message"]["text"]
