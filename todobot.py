@@ -148,7 +148,7 @@ def get_last_chat_id_and_text(updates: {}):  # only last message instead of whol
 
 
 def build_keyboard(items):
-    keyboard = [[{"text": item, "callback_data": item[:35]}] for item in items]
+    keyboard = [[{"text": item, "callback_data": item[:34]}] for item in items]
     reply_markup = {"inline_keyboard": keyboard}
     return json.dumps(reply_markup)
 
