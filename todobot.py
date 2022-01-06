@@ -104,6 +104,16 @@ def handle_update(update):
             message = "\n".join(completedItems)
             send_message("*🎯Completed goals today: \n*" + message + "\nMain Goals for today:", chat)
 
+        elif text == "/statistics":
+            send_message("*Here is your statistics*",
+                         chat)
+            itemsWeekly = db.get_statistics_weekly(chat)
+            itemsAll = db.get_statistics_all(chat)
+            completedItems = ["Total number of completed goals: " + str(sub) for sub in itemsAll]
+            completedItemsWeekly = ["\nWeekly number of completed goals: " + str(sub) for sub in itemsWeekly]
+            message = "\n".join(completedItems) + "\n".join(completedItemsWeekly)
+            send_message("🎯" + message + "\nGood Woork!", chat)
+
         elif text == "/currentgoals":
             keyboard = build_keyboard(items)
             completedItems = db.get_completed_items(chat)
